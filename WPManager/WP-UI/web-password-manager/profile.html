@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Web Password Manager</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fa-solid fa-key"></i>
+        <span>Password Manager</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><i class="fa-solid fa-table-columns"></i> Dashboard</a>
+        <a href="support_contact.html"><i class="fa-solid fa-headset"></i> Support & Contact</a>
+        <a href="profile.html" class="active"><i class="fa-solid fa-user"></i> Profile</a>
+        <a href="index.html" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="main-header">
+        <h2>Profile</h2>
+      </header>
+      <section class="profile-section">
+        <div class="profile-details">
+          <img src="assets/icons/user-avatar.png" alt="User Avatar" class="profile-avatar">
+          <div class="profile-info">
+            <p><strong>Name:</strong> <span id="profileName">John Doe</span></p>
+            <p><strong>Username:</strong> <span id="profileUsername">johndoe</span></p>
+            <p><strong>Email:</strong> <span id="profileEmail">john@example.com</span></p>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button id="updateProfileBtn" class="btn btn-primary"><i class="fa-solid fa-pen"></i> Update Profile</button>
+          <button id="changePasswordBtn" class="btn btn-secondary"><i class="fa-solid fa-lock"></i> Change Password</button>
+          <button id="deleteAccountBtn" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete Account</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeDeleteAccountModal">&times;</span>
+      <h3>Delete Account</h3>
+      <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+      <button id="confirmDeleteAccountBtn" class="btn btn-danger">Delete</button>
+      <button id="cancelDeleteAccountBtn" class="btn">Cancel</button>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+  <div id="loading" class="loading-overlay"><div class="spinner"></div></div>
+  <script src="js/profile.js"></script>
+</body>
+</html>

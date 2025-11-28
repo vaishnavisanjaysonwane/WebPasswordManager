@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Dashboard - Web Password Manager</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fa-solid fa-key"></i>
+        <span>Password Manager</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="active"><i class="fa-solid fa-table-columns"></i> Dashboard</a>
+        <a href="support_contact.html"><i class="fa-solid fa-headset"></i> Support & Contact</a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+        <a href="index.html" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="main-header">
+        <h2>My Passwords</h2>
+        <button id="addPasswordBtn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add New</button>
+      </header>
+      <section class="search-sort-bar">
+        <input type="text" id="searchInput" placeholder="Search by website name...">
+        <select id="sortDropdown">
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="new">Newly added</option>
+          <option value="old">Oldest</option>
+        </select>
+      </section>
+      <section id="passwordList" class="password-list">
+        <!-- Password records will be rendered here -->
+      </section>
+    </main>
+  </div>
+  <!-- Modals -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeAddModal">&times;</span>
+      <h3>Add New Password</h3>
+      <form id="addForm">
+        <div class="form-group">
+          <label for="website">Website Name</label>
+          <input type="text" id="website" name="website">
+        </div>
+        <div class="form-group">
+          <label for="url">Website URL</label>
+          <input type="url" id="url" name="url" placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+          <label for="username">Login Username</label>
+          <input type="text" id="username" name="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Login Password</label>
+          <input type="password" id="password" name="password">
+          <button type="button" class="show-hide" id="toggleAddPassword"><i class="fa-solid fa-eye"></i></button>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </form>
+    </div>
+  </div>
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeEditModal">&times;</span>
+      <h3>Edit Password</h3>
+      <form id="editPasswordForm">
+        <input type="hidden" id="editId" name="id">
+        <div class="form-group">
+          <label for="editWebsite">Website Name</label>
+          <input type="text" id="editWebsite" name="website" required>
+        </div>
+        <div class="form-group">
+          <label for="editUsername">Username / Email</label>
+          <input type="text" id="editUsername" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="editPassword">Password</label>
+          <input type="password" id="editPassword" name="password" required>
+          <button type="button" class="show-hide" id="toggleEditPassword"><i class="fa-solid fa-eye"></i></button>
+        </div>
+        <div class="form-group">
+          <label for="editCategory">Category (optional)</label>
+          <input type="text" id="editCategory" name="category">
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+    </div>
+  </div>
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeDeleteModal">&times;</span>
+      <h3>Delete Confirmation</h3>
+      <p>Are you sure you want to delete?</p>
+      <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+      <button id="cancelDeleteBtn" class="btn">Cancel</button>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+  <div id="loading" class="loading-overlay"><div class="spinner"></div></div>
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

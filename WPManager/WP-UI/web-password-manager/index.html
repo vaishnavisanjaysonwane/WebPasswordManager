@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Web Password Manager - Login</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body class="login-bg">
+  <div class="login-container">
+    <h1 class="login-title">Web Password Manager</h1>
+    
+    <!-- Login Form -->
+    <form id="loginForm" class="login-form active-form">
+      <h2>Login</h2>
+      <div class="form-group">
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
+      <div class="form-footer">
+        <p>Don't have an account? <a href="#" id="toggleSignin">Sign up here</a></p>
+      </div>
+    </form>
+
+    <!-- Sign-in (Registration) Form -->
+    <form id="signinForm" class="login-form" style="display: none;">
+      <h2>Create Account</h2>
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" name="fullName" required>
+      </div>
+      <div class="form-group">
+        <label for="signinUsername">Username</label>
+        <input type="text" id="signinUsername" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="signinEmail">Email</label>
+        <input type="email" id="signinEmail" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="signinPassword">Password</label>
+        <input type="password" id="signinPassword" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Sign Up</button>
+      <div class="form-footer">
+        <p>Already have an account? <a href="#" id="toggleLogin">Login here</a></p>
+      </div>
+    </form>
+
+    <div class="login-footer">
+      <a href="#">Forgot password?</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { registerUser, loginUser } from './js/service.js';
+
+    // Toggle between login and sign-in forms
+    const toggleSignin = document.getElementById('toggleSignin');
+    const toggleLogin = document.getElementById('toggleLogin');
+    const loginForm = document.getElementById('loginForm');
+    const signinForm = document.getElementById('signinForm');
+
+    toggleSignin.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      signinForm.style.display = 'block';
+    });
+
+    toggleLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'block';
+      signinForm.style.display = 'none';
+    });
+
+    // Handle Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      if (!username || !password) {
+        alert('Please enter username and password');
+        return;
+      }
+
+      try {
+        const response = await loginUser({ username, password });
+        console.log('Login successful:', response);
+        
+        // Store token/session info if provided, otherwise create a default token
+        const authToken = response.token || 'auth_' + Date.now();
+        localStorage.setItem('authToken', authToken);
+        
+        if (response.id) {
+          localStorage.setItem('userId', response.id);
+        }
+        if (response.username) {
+          localStorage.setItem('username', response.username);
+        }
+        
+        console.log('Token stored, redirecting to dashboard...');
+        
+        // Redirect to dashboard (use a small delay to ensure storage is complete)
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 100);
+      } catch (error) {
+        alert('Login failed: ' + error.message);
+        console.error('Login error:', error);
+      }
+    });
+
+    // Handle Sign-in (Registration)
+    signinForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById('fullName').value;
+      const username = document.getElementById('signinUsername').value;
+      const email = document.getElementById('signinEmail').value;
+      const password = document.getElementById('signinPassword').value;
+      
+      if (!fullName || !username || !email || !password) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const response = await registerUser({ fullName, username, email, password });
+        alert('Sign up successful! Please log in.');
+        console.log('Registration response:', response);
+        // Clear form and redirect to login
+        signinForm.reset();
+        loginForm.style.display = 'block';
+        signinForm.style.display = 'none';
+        document.getElementById('loginUsername').focus();
+      } catch (error) {
+        alert('Sign up failed: ' + error.message);
+        console.error('Registration error:', error);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support & Contact - Web Password Manager</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fa-solid fa-key"></i>
+        <span>Password Manager</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><i class="fa-solid fa-table-columns"></i> Dashboard</a>
+        <a href="support_contact.html" class="active"><i class="fa-solid fa-headset"></i> Support & Contact</a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+        <a href="index.html" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="main-header">
+        <h2>Support & Contact</h2>
+      </header>
+      <section class="support-section">
+        <form id="supportForm" class="support-form">
+          <h3>Send us a message</h3>
+          <div class="form-group">
+            <label for="supportName">Name</label>
+            <input type="text" id="supportName" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="supportEmail">Email</label>
+            <input type="email" id="supportEmail" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="supportMessage">Message</label>
+            <textarea id="supportMessage" name="message" rows="4" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+        <div class="contact-details">
+          <h3>Contact Details</h3>
+          <p><i class="fa-solid fa-envelope"></i> support@webpasswordmanager.com</p>
+          <p><i class="fa-solid fa-phone"></i> +1 234 567 8901</p>
+          <div class="social-links">
+            <a href="#" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
+            <a href="#" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast"></div>
+  <div id="loading" class="loading-overlay"><div class="spinner"></div></div>
+  <script src="js/support_contact.js"></script>
+</body>
+</html>
