@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,14 +44,14 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public User login(UserLoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername());
-        if (user == null)
+        Optional<User> user = userRepository.findByUsername(request.getUsername());
+        if (user.isEmpty())
             throw new RuntimeException("User Not Register");
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.get().getPassword())) {
             throw new RuntimeException("Invalid password");
         }
-        return user;
+        return user.get();
     }
 
 }

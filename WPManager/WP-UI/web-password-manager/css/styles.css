@@ -326,6 +326,24 @@ body {
   background: #f6f8fb;
   transition: border 0.2s;
 }
+.form-group {
+  position: relative;
+}
+.form-group .show-hide {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: 1px solid #e0e7ef;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #6c63ff;
+}
+.form-group .show-hide:hover {
+  background: #f6f8fb;
+}
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
   border: 1.5px solid #6c63ff;
   outline: none;
@@ -455,6 +473,21 @@ body {
   background: #e0e7ef;
   border: 3px solid #fff;
   box-shadow: 0 2px 8px rgba(60, 80, 120, 0.08);
+}
+/* User sticker (initials) */
+.profile-sticker {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 1.6rem;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(60, 80, 120, 0.08);
+  background: linear-gradient(135deg, #6c63ff, #554ee0);
 }
 .profile-info p {
   margin: 0.5rem 0;

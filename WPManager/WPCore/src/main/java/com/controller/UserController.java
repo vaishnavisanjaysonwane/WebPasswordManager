@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/profile")
 @RequiredArgsConstructor
@@ -22,49 +20,59 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUser(@PathVariable Long id) {
-        log.info("Fetching user with ID: {}", id);
-        User user = userService.getUserById(id)
+    // ----------------------- GET USER BY USERNAME -----------------------
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getUser(@PathVariable String username) {
+        log.info("Fetching user with username: {}", username);
+
+        User user = userService.getUserByUsername(username)
                 .orElse(null);
+
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found");
         }
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/update/{id}")
+    // ----------------------- UPDATE PROFILE ------------------------------
+    @PutMapping("/update/{username}")
     public ResponseEntity<?> updateProfile(
-            @PathVariable Long id,
+            @PathVariable String username,
             @RequestBody UserUpdateRequest request) {
 
-        log.info("API: Update user {}", id);
+        log.info("API: Update user {}", username);
         try {
-            User updated = userService.updateUser(id, request);
+            User updated = userService.updateUserByUsername(username, request);
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Update failed: " + e.getMessage());
         }
     }
 
-    @PutMapping("/change-password/{id}")
+    // ----------------------- CHANGE PASSWORD ------------------------------
+    @PutMapping("/change-password/{username}")
     public ResponseEntity<?> changePassword(
-            @PathVariable Long id,
+            @PathVariable String username,
             @RequestParam String oldPassword,
             @RequestParam String newPassword) {
 
-        log.info("API: Change password for ID {}", id);
-        boolean status = userService.changePassword(id, oldPassword, newPassword);
+        log.info("API: Change password for username {}", username);
+
+        boolean status = userService.changePasswordByUsername(username, oldPassword, newPassword);
+
         if (status)
             return ResponseEntity.ok("Password updated successfully");
         else
             return ResponseEntity.badRequest().body("Old password is incorrect");
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        log.info("API: Delete user {}", id);
-        boolean deleted = userService.deleteUser(id);
+    // ----------------------- DELETE USER ---------------------------------
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<?> deleteUser(@PathVariable String username) {
+        log.info("API: Delete user {}", username);
+
+        boolean deleted = userService.deleteUserByUsername(username);
+
         if (deleted)
             return ResponseEntity.ok("User deleted");
         else

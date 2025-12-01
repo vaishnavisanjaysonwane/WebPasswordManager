@@ -101,17 +101,31 @@
         console.log('Login successful:', response);
         
         // Store token/session info if provided, otherwise create a default token
-        const authToken = response.token || 'auth_' + Date.now();
+        const authToken = response.token || response.authToken || 'auth_' + Date.now();
         localStorage.setItem('authToken', authToken);
         
-        if (response.id) {
-          localStorage.setItem('userId', response.id);
-        }
-        if (response.username) {
-          localStorage.setItem('username', response.username);
+        // Store userId - try multiple possible field names from backend
+        const userId = response.id || response.userId || response.user?.id;
+        if (userId) {
+          localStorage.setItem('userId', userId);
+          console.log('UserId stored:', userId);
+        } else {
+          console.warn('No userId in response, using username as fallback');
+          localStorage.setItem('userId', username);
         }
         
-        console.log('Token stored, redirecting to dashboard...');
+        if (response.username) {
+          localStorage.setItem('username', response.username);
+        } else {
+          localStorage.setItem('username', username);
+        }
+        
+        console.log('Token and userId stored, redirecting to dashboard...');
+        console.log('LocalStorage check:', { 
+          authToken: localStorage.getItem('authToken'), 
+          userId: localStorage.getItem('userId'),
+          username: localStorage.getItem('username')
+        });
         
         // Redirect to dashboard (use a small delay to ensure storage is complete)
         setTimeout(() => {

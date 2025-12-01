@@ -19,17 +19,19 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    // --------------------- GET USER -------------------------
     @Override
-    public Optional<User> getUserById(Long id) {
-        log.info("Fetching user by ID: {}", id);
-        return userRepository.findById(id);
+    public Optional<User> getUserByUsername(String username) {
+        log.info("Fetching user by username: {}", username);
+        return userRepository.findByUsername(username);
     }
 
+    // ------------------- UPDATE USER PROFILE ----------------
     @Override
-    public User updateUser(Long id, UserUpdateRequest request) {
-        log.info("Updating user with ID: {}", id);
+    public User updateUserByUsername(String username, UserUpdateRequest request) {
+        log.info("Updating user with username: {}", username);
 
-        User user = userRepository.findById(id)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setFullName(request.getFullName());
@@ -38,34 +40,36 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    // ------------------- CHANGE PASSWORD --------------------
     @Override
-    public boolean changePassword(Long id, String oldPassword, String newPassword) {
-        log.info("Password change request for user ID: {}", id);
+    public boolean changePasswordByUsername(String username, String oldPassword, String newPassword) {
+        log.info("Password change request for username: {}", username);
 
-        User user = userRepository.findById(id)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            log.warn("Old password does not match for user ID: {}", id);
+            log.warn("Old password does not match for username: {}", username);
             return false;
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-
         return true;
     }
 
+    // ------------------- DELETE USER ------------------------
     @Override
-    public boolean deleteUser(Long id) {
-        log.info("Deleting user with ID: {}", id);
+    public boolean deleteUserByUsername(String username) {
+        log.info("Deleting user with username: {}", username);
 
-        if (!userRepository.existsById(id)) {
-            log.warn("User not found with ID: {}", id);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            log.warn("User not found with username: {}", username);
             return false;
         }
 
-        userRepository.deleteById(id);
+        userRepository.delete(userOpt.get());
         return true;
     }
 }

@@ -1,5 +1,5 @@
-﻿// js/service.js
-import { GET_ALL, ADD, UPDATE, DELETE, REGISTER, LOGIN, LOGOUT } from './api.js';
+// js/service.js
+import { GET_ALL, ADD, UPDATE, DELETE, REGISTER, LOGIN, LOGOUT, GET_PROFILE, UPDATE_PROFILE, CHANGE_PASSWORD, DELETE_PROFILE } from './api.js';
 
 export async function getAllPasswords() {
   const res = await fetch(GET_ALL);
@@ -81,6 +81,56 @@ export async function logoutUser() {
   if (!res.ok) throw new Error('Failed to logout');
   
   // Try to parse as JSON, if it fails, just return true
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await res.json();
+  } else {
+    return true;
+  }
+}
+
+// Profile functions
+export async function getProfile(userId) {
+  const res = await fetch(GET_PROFILE(userId));
+  if (!res.ok) throw new Error('Failed to fetch profile');
+  return await res.json();
+}
+
+export async function updateProfile(userId, data) {
+  const res = await fetch(UPDATE_PROFILE(userId), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Failed to update profile');
+  return await res.json();
+}
+
+export async function changePassword(userId, oldPassword, newPassword) {
+  const params = new URLSearchParams();
+  params.append('oldPassword', oldPassword);
+  params.append('newPassword', newPassword);
+  
+  const res = await fetch(CHANGE_PASSWORD(userId) + '?' + params.toString(), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) throw new Error('Failed to change password');
+  
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await res.json();
+  } else {
+    return { success: true, message: 'Password updated successfully' };
+  }
+}
+
+export async function deleteProfile(userId) {
+  const res = await fetch(DELETE_PROFILE(userId), {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete profile');
+  
   const contentType = res.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
     return await res.json();

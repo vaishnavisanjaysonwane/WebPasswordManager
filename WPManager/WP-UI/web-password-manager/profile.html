@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Profile - Web Password Manager</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,11 +33,11 @@
       </header>
       <section class="profile-section">
         <div class="profile-details">
-          <img src="assets/icons/user-avatar.png" alt="User Avatar" class="profile-avatar">
+          <div id="profileSticker" class="profile-sticker">--</div>
           <div class="profile-info">
-            <p><strong>Name:</strong> <span id="profileName">John Doe</span></p>
-            <p><strong>Username:</strong> <span id="profileUsername">johndoe</span></p>
-            <p><strong>Email:</strong> <span id="profileEmail">john@example.com</span></p>
+            <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
+            <p><strong>Username:</strong> <span id="profileUsername">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
           </div>
         </div>
         <div class="profile-actions">
@@ -45,6 +48,52 @@
       </section>
     </main>
   </div>
+
+  <!-- Update Profile Modal -->
+  <div id="updateProfileModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeUpdateProfileModal">&times;</span>
+      <h3>Update Profile</h3>
+      <form id="updateProfileForm">
+        <div class="form-group">
+          <label for="updateFullName">Full Name</label>
+          <input type="text" id="updateFullName" name="fullName" required>
+        </div>
+        <div class="form-group">
+          <label for="updateEmail">Email</label>
+          <input type="email" id="updateEmail" name="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeChangePasswordModal">&times;</span>
+      <h3>Change Password</h3>
+      <form id="changePasswordForm">
+        <div class="form-group">
+          <label for="oldPassword">Old Password</label>
+          <input type="password" id="oldPassword" name="oldPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" name="newPassword" required>
+          <button type="button" class="show-hide" id="toggleNewPassword"><i class="fa-solid fa-eye"></i></button>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required>
+          <button type="button" class="show-hide" id="toggleConfirmPassword"><i class="fa-solid fa-eye"></i></button>
+        </div>
+        <button type="submit" class="btn btn-primary">Change Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Account Modal -->
   <div id="deleteAccountModal" class="modal">
     <div class="modal-content">
       <span class="close" id="closeDeleteAccountModal">&times;</span>
@@ -54,8 +103,21 @@
       <button id="cancelDeleteAccountBtn" class="btn">Cancel</button>
     </div>
   </div>
+
   <div id="toast" class="toast"></div>
   <div id="loading" class="loading-overlay"><div class="spinner"></div></div>
-  <script src="js/profile.js"></script>
+  
+  <!-- Authentication check before loading profile.js -->
+  <script>
+    const authToken = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+    console.log('Profile.html - Auth check:', { authToken: !!authToken, userId: !!userId });
+    if (!authToken || !userId) {
+      console.warn('Profile.html - Not authenticated, redirecting to login');
+      window.location.href = 'index.html';
+    }
+  </script>
+  
+  <script type="module" src="js/profile.js"></script>
 </body>
 </html>

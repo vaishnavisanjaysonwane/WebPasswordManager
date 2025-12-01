@@ -138,10 +138,17 @@ addForm.addEventListener('submit', async e => {
   } catch (err) {
     showToast(err.message, 'error');
   }
-  const input = addForm.password;
-  input.type = input.type === 'password' ? 'text' : 'password';
-  toggleAddPassword.innerHTML = `<i class="fa-solid fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
 });
+
+// Toggle for Add modal password visibility
+if (toggleAddPassword) {
+  toggleAddPassword.addEventListener('click', () => {
+    const input = addForm.password;
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    toggleAddPassword.innerHTML = `<i class="fa-solid fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
+  });
+}
 
 // Edit modal
 passwordList.addEventListener('click', e => {
