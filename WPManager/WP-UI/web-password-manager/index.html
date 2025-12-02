@@ -103,19 +103,23 @@
         // Store token/session info if provided, otherwise create a default token
         const authToken = response.token || response.authToken || 'auth_' + Date.now();
         localStorage.setItem('authToken', authToken);
-        
-        // Store userId - try multiple possible field names from backend
-        const userId = response.id || response.userId || response.user?.id;
-        if (userId) {
-          localStorage.setItem('userId', userId);
-          console.log('UserId stored:', userId);
+
+        // Store userId and username as provided by backend
+        if (response.id !== undefined && response.id !== null) {
+          localStorage.setItem('userId', response.id);
+        } else if (response.userId !== undefined && response.userId !== null) {
+          localStorage.setItem('userId', response.userId);
+        } else if (response.user && response.user.id) {
+          localStorage.setItem('userId', response.user.id);
         } else {
-          console.warn('No userId in response, using username as fallback');
+          // fallback: store username as userId to avoid empty value (not ideal)
           localStorage.setItem('userId', username);
         }
-        
-        if (response.username) {
+
+        if (response.username !== undefined && response.username !== null) {
           localStorage.setItem('username', response.username);
+        } else if (response.user && response.user.username) {
+          localStorage.setItem('username', response.user.username);
         } else {
           localStorage.setItem('username', username);
         }

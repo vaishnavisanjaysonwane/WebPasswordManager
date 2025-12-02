@@ -62,7 +62,9 @@ function renderTable() {
 
 async function loadPasswords() {
   try {
-    passwords = await getAllPasswords();
+    const userId = localStorage.getItem('userId');
+    if (!userId) throw new Error('Not authenticated');
+    passwords = await getAllPasswords(userId);
     renderTable();
   } catch (e) {
     showToast(e.message, 'error');
@@ -92,7 +94,9 @@ addForm.addEventListener('submit', async e => {
     dateAdded: new Date().toISOString()
   };
   try {
-    await addPassword(data);
+    const userId = localStorage.getItem('userId');
+    if (!userId) throw new Error('Not authenticated');
+    await addPassword(userId, data);
     showToast('Password added!');
     hideModal(addModal);
     addForm.reset();
@@ -160,3 +164,13 @@ confirmDeleteBtn.addEventListener('click', async () => {
 });
 
 window.addEventListener('DOMContentLoaded', loadPasswords);
+// Prevent viewing cached pages after logout
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    const authToken = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+    if (!authToken || !userId) {
+      window.location.href = 'index.html';
+    }
+  }
+});

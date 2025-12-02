@@ -1,12 +1,13 @@
 package com.service;
 
 import com.entity.PasswordEntry;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 public interface PasswordService {
 
-    PasswordEntry addPassword(PasswordEntry entry);
+    PasswordEntry addPassword(String username, PasswordEntry entry);
 
     PasswordEntry updatePassword(Long id, PasswordEntry entry);
 
@@ -14,5 +15,5 @@ public interface PasswordService {
 
     PasswordEntry getPasswordById(Long id);
 
-    List<PasswordEntry> getAllPasswords();
+    @Nullable List<PasswordEntry> getAllPasswords(String username);
 }

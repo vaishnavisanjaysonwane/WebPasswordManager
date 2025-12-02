@@ -1,14 +1,18 @@
 // js/service.js
 import { GET_ALL, ADD, UPDATE, DELETE, REGISTER, LOGIN, LOGOUT, GET_PROFILE, UPDATE_PROFILE, CHANGE_PASSWORD, DELETE_PROFILE } from './api.js';
 
-export async function getAllPasswords() {
-  const res = await fetch(GET_ALL);
+// Get all passwords for a user
+export async function getAllPasswords(userId) {
+  if (!userId) throw new Error('Missing userId');
+  const res = await fetch(GET_ALL(userId));
   if (!res.ok) throw new Error('Failed to fetch passwords');
   return await res.json();
 }
 
-export async function addPassword(data) {
-  const res = await fetch(ADD, {
+// Add password for a user
+export async function addPassword(userId, data) {
+  if (!userId) throw new Error('Missing userId');
+  const res = await fetch(ADD(userId), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)

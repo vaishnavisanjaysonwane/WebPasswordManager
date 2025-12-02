@@ -1,9 +1,12 @@
 package com.service.impl;
 
 import com.entity.PasswordEntry;
+import com.entity.User;
 import com.repository.PasswordRepository;
+import com.repository.UserRepository;
 import com.service.PasswordService;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,13 +18,19 @@ public class PasswordServiceImpl implements PasswordService {
 
     private final PasswordRepository passwordRepository;
 
-    public PasswordServiceImpl(PasswordRepository passwordRepository) {
+    private final UserRepository userRepository;
+
+    public PasswordServiceImpl(PasswordRepository passwordRepository, UserRepository userRepository) {
         this.passwordRepository = passwordRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public PasswordEntry addPassword(PasswordEntry entry) {
-        log.info("Adding new password entry for website: {}", entry.getWebsite());
+    public PasswordEntry addPassword(String username, PasswordEntry entry) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        log.info("User info : {}",user);
+        entry.setUser(user);
         entry.setCreatedAt(LocalDateTime.now());
         return passwordRepository.save(entry);
     }
@@ -59,8 +68,8 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public List<PasswordEntry> getAllPasswords() {
-        log.info("Fetching all password entries");
-        return passwordRepository.findAll();
+    public @Nullable List<PasswordEntry> getAllPasswords(String username) {
+        return passwordRepository.findByUser_Username(username);
     }
+
 }

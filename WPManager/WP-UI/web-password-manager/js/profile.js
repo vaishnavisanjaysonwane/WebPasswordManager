@@ -181,14 +181,11 @@ confirmDeleteAccountBtn.addEventListener("click", async () => {
     hideModal(deleteAccountModal);
     
     // Clear localStorage
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    
+    // Clear everything and prevent back navigation
+    localStorage.clear();
+    try { window.history.forward(); } catch (e) {}
     // Redirect to login after 1s
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 1000);
+    setTimeout(() => { window.location.href = "index.html"; }, 1000);
   } catch (err) {
     console.error("Delete error:", err);
     showToast("Error: " + err.message, "error");

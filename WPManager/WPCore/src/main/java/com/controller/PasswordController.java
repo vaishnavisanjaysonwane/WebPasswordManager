@@ -24,11 +24,13 @@ public class PasswordController {
     }
 
     // ADD
-    @PostMapping
-    public ResponseEntity<PasswordEntry> addPassword(@RequestBody PasswordEntry entry) {
+    @PostMapping("/{username}")
+    public ResponseEntity<PasswordEntry> addPassword(
+            @PathVariable String username,
+            @RequestBody PasswordEntry entry
+    ){
         log.info("API Request → Add password for website: {}", entry.getWebsite());
-        PasswordEntry created = passwordService.addPassword(entry);
-        return ResponseEntity.ok(created);
+        return ResponseEntity.ok(passwordService.addPassword(username, entry));
     }
 
     // UPDATE
@@ -59,9 +61,8 @@ public class PasswordController {
     }
 
     // GET ALL (Bulk View)
-    @GetMapping
-    public ResponseEntity<List<PasswordEntry>> getAll() {
-        log.info("API Request → Get all passwords");
-        return ResponseEntity.ok(passwordService.getAllPasswords());
+    @GetMapping("/{username}/all")
+    public ResponseEntity<List<PasswordEntry>> getAll(@PathVariable String username) {
+        return ResponseEntity.ok(passwordService.getAllPasswords(username));
     }
 }

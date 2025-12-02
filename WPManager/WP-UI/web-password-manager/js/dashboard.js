@@ -4,8 +4,10 @@ import { getAllPasswords, addPassword, updatePassword, deletePassword, logoutUse
 function checkAuthentication() {
   const authToken = localStorage.getItem('authToken');
   console.log('Auth check - Token found:', !!authToken, 'Token:', authToken);
-  
-  if (!authToken) {
+  const userId = localStorage.getItem('userId');
+  console.log('Auth check - userId found:', !!userId, 'userId:', userId);
+
+  if (!authToken || !userId) {
     // No token, redirect to login
     console.log('No authentication token, redirecting to login...');
     window.location.href = 'index.html';
@@ -98,7 +100,9 @@ function renderPasswords() {
 // Fetch and render
 async function loadPasswords() {
   try {
-    passwords = await getAllPasswords();
+    const userId = localStorage.getItem('userId');
+    if (!userId) throw new Error('Not authenticated');
+    passwords = await getAllPasswords(userId);
     renderPasswords();
   } catch (e) {
     showToast(e.message, 'error');
@@ -130,7 +134,9 @@ addForm.addEventListener('submit', async e => {
     dateAdded: new Date().toISOString()
   };
   try {
-    await addPassword(data);
+    const userId = localStorage.getItem('userId');
+    if (!userId) throw new Error('Not authenticated');
+    await addPassword(userId, data);
     showToast('Password added!');
     hideModal(addModal);
     addForm.reset();
@@ -229,26 +235,18 @@ if (logoutLink) {
       const result = await logoutUser();
       console.log('Logout API response:', result);
       showToast('Logging out...', 'success');
-      // Clear stored data
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('username');
+      // Clear all local storage and prevent back navigation
+      localStorage.clear();
+      try { window.history.forward(); } catch(e){}
       // Small delay before redirect
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 500);
+      setTimeout(() => { window.location.href = 'index.html'; }, 500);
     } catch (err) {
       console.error('Logout error:', err);
       // Don't show error, just log it and proceed with logout
       showToast('Logging out...', 'success');
-      // Clear stored data anyway
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('username');
-      // Even if logout fails on backend, redirect to login page
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 500);
+      localStorage.clear();
+      try { window.history.forward(); } catch(e){}
+      setTimeout(() => { window.location.href = 'index.html'; }, 500);
     }
   });
 }
