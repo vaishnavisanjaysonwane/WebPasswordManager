@@ -34,14 +34,14 @@ public class UserController {
     }
 
     // ----------------------- UPDATE PROFILE ------------------------------
-    @PutMapping("/update/{username}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<?> updateProfile(
-            @PathVariable String username,
+            @PathVariable Long id,
             @RequestBody UserUpdateRequest request) {
 
-        log.info("API: Update user {}", username);
+        log.info("API: Update user {}", id);
         try {
-            User updated = userService.updateUserByUsername(username, request);
+            User updated = userService.updateUserByUsername(id, request);
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Update failed: " + e.getMessage());
@@ -49,15 +49,15 @@ public class UserController {
     }
 
     // ----------------------- CHANGE PASSWORD ------------------------------
-    @PutMapping("/change-password/{username}")
+    @PutMapping("/change-password/{id}")
     public ResponseEntity<?> changePassword(
-            @PathVariable String username,
+            @PathVariable Long id,
             @RequestParam String oldPassword,
             @RequestParam String newPassword) {
 
-        log.info("API: Change password for username {}", username);
+        log.info("API: Change password for username {}", id);
 
-        boolean status = userService.changePasswordByUsername(username, oldPassword, newPassword);
+        boolean status = userService.changePasswordByUsername(id, oldPassword, newPassword);
 
         if (status)
             return ResponseEntity.ok("Password updated successfully");
@@ -66,11 +66,11 @@ public class UserController {
     }
 
     // ----------------------- DELETE USER ---------------------------------
-    @DeleteMapping("/delete/{username}")
-    public ResponseEntity<?> deleteUser(@PathVariable String username) {
-        log.info("API: Delete user {}", username);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        log.info("API: Delete user {}", id);
 
-        boolean deleted = userService.deleteUserByUsername(username);
+        boolean deleted = userService.deleteUserByUsername(id);
 
         if (deleted)
             return ResponseEntity.ok("User deleted");

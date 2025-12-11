@@ -28,10 +28,10 @@ public class UserServiceImpl implements UserService {
 
     // ------------------- UPDATE USER PROFILE ----------------
     @Override
-    public User updateUserByUsername(String username, UserUpdateRequest request) {
-        log.info("Updating user with username: {}", username);
+    public User updateUserByUsername(Long id, UserUpdateRequest request) {
+        log.info("Updating user with username: {}", id);
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setFullName(request.getFullName());
@@ -42,14 +42,14 @@ public class UserServiceImpl implements UserService {
 
     // ------------------- CHANGE PASSWORD --------------------
     @Override
-    public boolean changePasswordByUsername(String username, String oldPassword, String newPassword) {
-        log.info("Password change request for username: {}", username);
+    public boolean changePasswordByUsername(Long id, String oldPassword, String newPassword) {
+        log.info("Password change request for username: {}", id);
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            log.warn("Old password does not match for username: {}", username);
+            log.warn("Old password does not match for username: {}", id);
             return false;
         }
 
@@ -60,12 +60,12 @@ public class UserServiceImpl implements UserService {
 
     // ------------------- DELETE USER ------------------------
     @Override
-    public boolean deleteUserByUsername(String username) {
-        log.info("Deleting user with username: {}", username);
+    public boolean deleteUserByUsername(Long id) {
+        log.info("Deleting user with username: {}", id);
 
-        Optional<User> userOpt = userRepository.findByUsername(username);
+        Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
-            log.warn("User not found with username: {}", username);
+            log.warn("User not found with username: {}", id);
             return false;
         }
 

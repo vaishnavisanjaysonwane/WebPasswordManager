@@ -8,9 +8,9 @@ import java.util.Optional;
 public interface UserService {
 
     Optional<User> getUserByUsername(String username);
-    User updateUserByUsername(String username, UserUpdateRequest request);
-    boolean changePasswordByUsername(String username, String oldPassword, String newPassword);
-    boolean deleteUserByUsername(String username);
+    User updateUserByUsername(Long id, UserUpdateRequest request);
+    boolean changePasswordByUsername(Long id, String oldPassword, String newPassword);
+    boolean deleteUserByUsername(Long id);
 
     User getUserByUserId(Long id);
 }

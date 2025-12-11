@@ -24,13 +24,13 @@ public class PasswordController {
     }
 
     // ADD
-    @PostMapping("/{username}")
+    @PostMapping("/{id}")
     public ResponseEntity<PasswordEntry> addPassword(
-            @PathVariable String username,
+            @PathVariable Long id,
             @RequestBody PasswordEntry entry
     ){
         log.info("API Request → Add password for website: {}", entry.getWebsite());
-        return ResponseEntity.ok(passwordService.addPassword(username, entry));
+        return ResponseEntity.ok(passwordService.addPassword(id, entry));
     }
 
     // UPDATE

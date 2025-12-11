@@ -28,8 +28,8 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public PasswordEntry addPassword(String username, PasswordEntry entry) {
-        User user = userRepository.findByUsername(username)
+    public PasswordEntry addPassword(Long id, PasswordEntry entry) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         log.info("User info : {}",user);
         entry.setUser(user);

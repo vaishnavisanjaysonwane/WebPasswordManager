@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface PasswordService {
 
-    PasswordEntry addPassword(String username, PasswordEntry entry);
+    PasswordEntry addPassword(Long id, PasswordEntry entry);
 
     PasswordEntry updatePassword(Long id, PasswordEntry entry);
 
