@@ -10,7 +10,9 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -68,8 +70,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public @Nullable List<PasswordEntry> getAllPasswords(String username) {
-        return passwordRepository.findByUser_Username(username);
+    public List<PasswordEntry> getAllPasswords(String username) {
+        return passwordRepository.findByUserId(Long.parseLong(username));
     }
-
 }

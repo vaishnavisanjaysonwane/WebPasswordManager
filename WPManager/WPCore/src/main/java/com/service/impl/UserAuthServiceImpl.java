@@ -36,6 +36,7 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .fullName(request.getFullName())
                 .username(request.getUsername())
                 .email(request.getEmail())
+                .role(request.getRole())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 

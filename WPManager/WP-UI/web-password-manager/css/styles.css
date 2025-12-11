@@ -556,3 +556,151 @@ body {
     height: 70px;
   }
 }
+
+/* Support Queries */
+.my-queries-section {
+  margin-top: 3rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(60, 80, 120, 0.06);
+  padding: 2rem;
+}
+
+.queries-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.queries-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #2d3a4a;
+}
+
+.status-filter {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #dbe2ea;
+  background: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #4a5a6a;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: #6c63ff;
+  color: #6c63ff;
+}
+
+.filter-btn.active {
+  background: #6c63ff;
+  color: #fff;
+  border-color: #6c63ff;
+}
+
+.queries-table {
+  overflow-x: auto;
+}
+
+.queries-list {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.queries-list th, .queries-list td {
+  padding: 0.9rem 0.7rem;
+  text-align: left;
+}
+
+.queries-list th {
+  color: #6c63ff;
+  font-weight: 700;
+  background: #f6f8fb;
+  border-bottom: 2px solid #e0e7ef;
+}
+
+.queries-list tr {
+  transition: background 0.2s;
+}
+
+.queries-list tr:hover {
+  background: #f6f8fb;
+}
+
+.queries-list td {
+  color: #2d3a4a;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge-in-progress {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.badge-resolved {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.queries-list .action-btn {
+  background: none;
+  border: none;
+  color: #4a5a6a;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-right: 0.7rem;
+  transition: color 0.2s;
+}
+
+.queries-list .action-btn.edit-query:hover {
+  color: #6c63ff;
+}
+
+.queries-list .action-btn.delete-query:hover {
+  color: #ff5c5c;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #b0b8c9;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .queries-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .status-filter {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}

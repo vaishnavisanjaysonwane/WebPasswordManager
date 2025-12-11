@@ -29,22 +29,20 @@
         <h2>Support & Contact</h2>
       </header>
       <section class="support-section">
-        <form id="supportForm" class="support-form">
-          <h3>Send us a message</h3>
-          <div class="form-group">
-            <label for="supportName">Name</label>
-            <input type="text" id="supportName" name="name" required>
-          </div>
-          <div class="form-group">
-            <label for="supportEmail">Email</label>
-            <input type="email" id="supportEmail" name="email" required>
-          </div>
-          <div class="form-group">
-            <label for="supportMessage">Message</label>
-            <textarea id="supportMessage" name="message" rows="4" required></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary">Send</button>
-        </form>
+        <div class="support-form">
+          <h3>Submit New Query</h3>
+          <form id="supportForm">
+            <div class="form-group">
+              <label for="supportSubject">Subject</label>
+              <input type="text" id="supportSubject" name="subject" required>
+            </div>
+            <div class="form-group">
+              <label for="supportMessage">Message</label>
+              <textarea id="supportMessage" name="message" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Query</button>
+          </form>
+        </div>
         <div class="contact-details">
           <h3>Contact Details</h3>
           <p><i class="fa-solid fa-envelope"></i> support@webpasswordmanager.com</p>
@@ -56,10 +54,59 @@
           </div>
         </div>
       </section>
+
+      <!-- My Queries Section -->
+      <section class="my-queries-section">
+        <header class="queries-header">
+          <h3>My Queries</h3>
+          <div class="status-filter">
+            <!-- <button class="filter-btn active" data-status="all">All</button>
+            <button class="filter-btn" data-status="pending">Pending</button>
+            <button class="filter-btn" data-status="in-progress">In Progress</button>
+            <button class="filter-btn" data-status="resolved">Resolved</button> -->
+          </div>
+        </header>
+        <div id="queriesTable" class="queries-table">
+          <!-- Queries will be rendered here -->
+        </div>
+      </section>
     </main>
   </div>
   <div id="toast" class="toast"></div>
   <div id="loading" class="loading-overlay"><div class="spinner"></div></div>
-  <script src="js/support_contact.js"></script>
+
+  <!-- Edit Query Modal -->
+  <div id="editQueryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeEditModal">&times;</span>
+      <h3>Edit Query</h3>
+      <form id="editQueryForm">
+        <input type="hidden" id="editQueryId" name="id">
+        <div class="form-group">
+          <label for="editSubject">Subject</label>
+          <input type="text" id="editSubject" name="subject" required>
+        </div>
+        <div class="form-group">
+          <label for="editMessage">Message</label>
+          <textarea id="editMessage" name="message" rows="4" required></textarea>
+        </div>
+        <!-- Status is admin-controlled; users cannot change status -->
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeDeleteModal">&times;</span>
+      <h3>Delete Query</h3>
+      <p>Are you sure you want to delete this query? This action cannot be undone.</p>
+      <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+      <button id="cancelDeleteBtn" class="btn">Cancel</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/support_contact.js"></script>
 </body>
 </html>

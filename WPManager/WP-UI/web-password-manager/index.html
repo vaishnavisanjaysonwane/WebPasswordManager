@@ -12,6 +12,27 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    .password-field { position: relative; }
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #666;
+      padding: 4px;
+    }
+    .password-toggle:focus { outline: none; }
+    .password-toggle .fa-eye-slash { display: none; }
+    .password-toggle.showing .fa-eye { display: none; }
+    .password-toggle.showing .fa-eye-slash { display: inline-block; }
+    .input-error { color: #d93025; font-size: 0.85rem; margin-top: 6px; display: none; }
+    .input-error.active { display: block; }
+  </style>
 </head>
 <body class="login-bg">
   <div class="login-container">
@@ -24,9 +45,14 @@
         <label for="loginUsername">Username</label>
         <input type="text" id="loginUsername" name="username" required>
       </div>
-      <div class="form-group">
+      <div class="form-group password-field">
         <label for="loginPassword">Password</label>
         <input type="password" id="loginPassword" name="password" required>
+        <button type="button" id="toggleLoginPassword" class="password-toggle" aria-label="Show password" aria-pressed="false">
+          <i class="fa fa-eye"></i>
+          <i class="fa fa-eye-slash"></i>
+        </button>
+        <div id="loginPasswordError" class="input-error" aria-live="polite"></div>
       </div>
       <button type="submit" class="btn btn-primary">Login</button>
       <div class="form-footer">
@@ -40,18 +66,26 @@
       <div class="form-group">
         <label for="fullName">Full Name</label>
         <input type="text" id="fullName" name="fullName" required>
+        <div id="fullNameError" class="input-error" aria-live="polite"></div>
       </div>
       <div class="form-group">
         <label for="signinUsername">Username</label>
         <input type="text" id="signinUsername" name="username" required>
+        <div id="signinUsernameError" class="input-error" aria-live="polite"></div>
       </div>
       <div class="form-group">
         <label for="signinEmail">Email</label>
         <input type="email" id="signinEmail" name="email" required>
+        <div id="signinEmailError" class="input-error" aria-live="polite"></div>
       </div>
-      <div class="form-group">
+      <div class="form-group password-field">
         <label for="signinPassword">Password</label>
         <input type="password" id="signinPassword" name="password" required>
+        <button type="button" id="toggleSigninPassword" class="password-toggle" aria-label="Show password" aria-pressed="false">
+          <i class="fa fa-eye"></i>
+          <i class="fa fa-eye-slash"></i>
+        </button>
+        <div id="signinPasswordError" class="input-error" aria-live="polite"></div>
       </div>
       <button type="submit" class="btn btn-primary">Sign Up</button>
       <div class="form-footer">
@@ -61,6 +95,8 @@
 
     <div class="login-footer">
       <a href="#">Forgot password?</a>
+      &nbsp;|&nbsp;
+      <a href="admin_login.html">Admin Portal</a>
     </div>
   </div>
 
@@ -85,6 +121,114 @@
       signinForm.style.display = 'none';
     });
 
+    // Toggle show/hide for login password
+    const toggleLoginPassword = document.getElementById('toggleLoginPassword');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginPasswordError = document.getElementById('loginPasswordError');
+    if (toggleLoginPassword && loginPassword) {
+      toggleLoginPassword.addEventListener('click', () => {
+        const isHidden = loginPassword.type === 'password';
+        loginPassword.type = isHidden ? 'text' : 'password';
+        toggleLoginPassword.classList.toggle('showing', isHidden);
+        toggleLoginPassword.setAttribute('aria-pressed', String(isHidden));
+      });
+    }
+
+    // Toggle show/hide for sign-in (registration) password
+    const toggleSigninPassword = document.getElementById('toggleSigninPassword');
+    const signinPassword = document.getElementById('signinPassword');
+    if (toggleSigninPassword && signinPassword) {
+      toggleSigninPassword.addEventListener('click', () => {
+        const isHidden = signinPassword.type === 'password';
+        signinPassword.type = isHidden ? 'text' : 'password';
+        toggleSigninPassword.classList.toggle('showing', isHidden);
+        toggleSigninPassword.setAttribute('aria-pressed', String(isHidden));
+      });
+    }
+
+    // Validation helpers
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function validatePassword(pwd) {
+      if (!pwd || pwd.length < 8) {
+        return { valid: false, message: 'Password must be at least 8 characters.' };
+      }
+      if (!/[a-z]/.test(pwd)) {
+        return { valid: false, message: 'Password must include a lowercase letter.' };
+      }
+      if (!/[A-Z]/.test(pwd)) {
+        return { valid: false, message: 'Password must include an uppercase letter.' };
+      }
+      if (!/[0-9]/.test(pwd)) {
+        return { valid: false, message: 'Password must include a number.' };
+      }
+      if (!/[!@#\$%\^&\*()_+\-=[\]{};':"\\|,.<>\/?]/.test(pwd)) {
+        return { valid: false, message: 'Password must include a special character.' };
+      }
+      return { valid: true };
+    }
+
+    // Live validation for sign-up fields
+    const fullNameEl = document.getElementById('fullName');
+    const fullNameError = document.getElementById('fullNameError');
+    const signinUsernameEl = document.getElementById('signinUsername');
+    const signinUsernameError = document.getElementById('signinUsernameError');
+    const signinEmailEl = document.getElementById('signinEmail');
+    const signinEmailError = document.getElementById('signinEmailError');
+    if (fullNameEl) {
+      fullNameEl.addEventListener('input', () => {
+        const val = fullNameEl.value || '';
+        if (/\d/.test(val)) {
+          fullNameError.textContent = 'Name must not contain numbers.';
+          fullNameError.classList.add('active');
+        } else {
+          fullNameError.textContent = '';
+          fullNameError.classList.remove('active');
+        }
+      });
+    }
+    if (signinUsernameEl) {
+      signinUsernameEl.addEventListener('input', () => {
+        const val = signinUsernameEl.value.trim();
+        if (val.length <= 4) {
+          signinUsernameError.textContent = 'Username must be at least 5 characters.';
+          signinUsernameError.classList.add('active');
+        } else {
+          signinUsernameError.textContent = '';
+          signinUsernameError.classList.remove('active');
+        }
+      });
+    }
+    if (signinEmailEl) {
+      signinEmailEl.addEventListener('input', () => {
+        if (!validateEmail(signinEmailEl.value.trim())) {
+          signinEmailError.textContent = 'Please enter a valid email address.';
+          signinEmailError.classList.add('active');
+        } else {
+          signinEmailError.textContent = '';
+          signinEmailError.classList.remove('active');
+        }
+      });
+    }
+
+    const signinPwdEl = document.getElementById('signinPassword');
+    const signinPwdError = document.getElementById('signinPasswordError');
+    if (signinPwdEl) {
+      signinPwdEl.addEventListener('input', () => {
+        const res = validatePassword(signinPwdEl.value);
+        if (!res.valid) {
+          signinPwdError.textContent = res.message;
+          signinPwdError.classList.add('active');
+        } else {
+          signinPwdError.textContent = '';
+          signinPwdError.classList.remove('active');
+        }
+      });
+    }
+
     // Handle Login
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -96,6 +240,20 @@
         return;
       }
 
+      // Warn on weak password but allow login to proceed
+      const loginPwdCheck = validatePassword(password);
+      if (!loginPwdCheck.valid) {
+        if (loginPasswordError) {
+          loginPasswordError.textContent = loginPwdCheck.message + ' You may proceed if this is your current password.';
+          loginPasswordError.classList.add('active');
+        }
+        const proceed = confirm('Password appears weak. Do you want to continue logging in?');
+        if (!proceed) return;
+      } else if (loginPasswordError) {
+        loginPasswordError.textContent = '';
+        loginPasswordError.classList.remove('active');
+      }
+
       try {
         const response = await loginUser({ username, password });
         console.log('Login successful:', response);
@@ -103,6 +261,32 @@
         // Store token/session info if provided, otherwise create a default token
         const authToken = response.token || response.authToken || 'auth_' + Date.now();
         localStorage.setItem('authToken', authToken);
+
+        // Store token expiry if provided, support multiple possible field names
+        // Backend may return expiresAt (ISO) or expiresIn (seconds)
+        let expiryTimestamp = null;
+        if (response.expiresAt) {
+          expiryTimestamp = Date.parse(response.expiresAt);
+        } else if (response.expiry) {
+          expiryTimestamp = Date.parse(response.expiry);
+        } else if (response.expiresIn) {
+          expiryTimestamp = Date.now() + (Number(response.expiresIn) * 1000);
+        } else if (response.expires) {
+          // maybe seconds
+          expiryTimestamp = Date.now() + (Number(response.expires) * 1000);
+        } else {
+          // default to 1 hour session
+          expiryTimestamp = Date.now() + (60 * 60 * 1000);
+        }
+        localStorage.setItem('authExpiry', String(expiryTimestamp));
+
+        // Store role(s) if provided by backend
+        const role = response.role || response.roles || (response.user && response.user.role) || null;
+        if (role) {
+          // normalize to a string role; if array, take first
+          const r = Array.isArray(role) ? role[0] : role;
+          localStorage.setItem('role', r);
+        }
 
         // Store userId and username as provided by backend
         if (response.id !== undefined && response.id !== null) {
@@ -124,16 +308,14 @@
           localStorage.setItem('username', username);
         }
         
-        console.log('Token and userId stored, redirecting to dashboard...');
-        console.log('LocalStorage check:', { 
-          authToken: localStorage.getItem('authToken'), 
-          userId: localStorage.getItem('userId'),
-          username: localStorage.getItem('username')
-        });
-        
-        // Redirect to dashboard (use a small delay to ensure storage is complete)
+        // Redirect based on role: admin -> admin.html, otherwise dashboard
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
+          const storedRole = localStorage.getItem('role') || localStorage.getItem('userRole') || '';
+          if (storedRole && String(storedRole).toLowerCase().includes('admin')) {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
         }, 100);
       } catch (error) {
         alert('Login failed: ' + error.message);
@@ -144,9 +326,9 @@
     // Handle Sign-in (Registration)
     signinForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const fullName = document.getElementById('fullName').value;
-      const username = document.getElementById('signinUsername').value;
-      const email = document.getElementById('signinEmail').value;
+      const fullName = document.getElementById('fullName').value.trim();
+      const username = document.getElementById('signinUsername').value.trim();
+      const email = document.getElementById('signinEmail').value.trim();
       const password = document.getElementById('signinPassword').value;
       
       if (!fullName || !username || !email || !password) {
@@ -154,11 +336,75 @@
         return;
       }
 
+      // Full name validation: must not contain digits
+      if (/\d/.test(fullName)) {
+        if (fullNameError) {
+          fullNameError.textContent = 'Name must not contain numbers.';
+          fullNameError.classList.add('active');
+        }
+        return;
+      } else if (fullNameError) {
+        fullNameError.textContent = '';
+        fullNameError.classList.remove('active');
+      }
+
+      // Username length validation
+      if (username.length <= 4) {
+        if (signinUsernameError) {
+          signinUsernameError.textContent = 'Username must be at least 5 characters.';
+          signinUsernameError.classList.add('active');
+        }
+        return;
+      } else if (signinUsernameError) {
+        signinUsernameError.textContent = '';
+        signinUsernameError.classList.remove('active');
+      }
+
+      // Email validation
+      if (!validateEmail(email)) {
+        if (signinEmailError) {
+          signinEmailError.textContent = 'Please enter a valid email address.';
+          signinEmailError.classList.add('active');
+        }
+        return;
+      }
+
+      // Password strength validation
+      const pwdCheck = validatePassword(password);
+      if (!pwdCheck.valid) {
+        if (signinPwdError) {
+          signinPwdError.textContent = pwdCheck.message;
+          signinPwdError.classList.add('active');
+        }
+        return;
+      }
+
       try {
         const response = await registerUser({ fullName, username, email, password });
-        alert('Sign up successful! Please log in.');
         console.log('Registration response:', response);
-        // Clear form and redirect to login
+        // If backend returned a role (e.g. admin) and optionally token, redirect accordingly.
+        const regRole = response.role || response.roles || (response.user && response.user.role) || null;
+        if (regRole && (Array.isArray(regRole) ? regRole.map(r=>String(r).toLowerCase()).includes('admin') : String(regRole).toLowerCase().includes('admin'))) {
+          // If backend returned token on registration, store it and redirect to admin portal
+          const authToken = response.token || response.authToken || null;
+          if (authToken) localStorage.setItem('authToken', authToken);
+          if (response.expiresAt || response.expiresIn || response.expires) {
+            // reuse same expiry logic as login
+            let expiryTimestamp = null;
+            if (response.expiresAt) expiryTimestamp = Date.parse(response.expiresAt);
+            else if (response.expiresIn) expiryTimestamp = Date.now() + (Number(response.expiresIn) * 1000);
+            else if (response.expires) expiryTimestamp = Date.now() + (Number(response.expires) * 1000);
+            if (expiryTimestamp) localStorage.setItem('authExpiry', String(expiryTimestamp));
+          }
+          const r = Array.isArray(regRole) ? regRole[0] : regRole;
+          localStorage.setItem('role', r);
+          // Redirect to admin portal
+          window.location.href = 'admin.html';
+          return;
+        }
+
+        // Default: show success and go to login
+        alert('Sign up successful! Please log in.');
         signinForm.reset();
         loginForm.style.display = 'block';
         signinForm.style.display = 'none';

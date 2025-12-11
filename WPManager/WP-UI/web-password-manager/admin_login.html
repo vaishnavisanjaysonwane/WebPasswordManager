@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Web Password Manager</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    .login-container { max-width:420px; margin:60px auto; padding:24px; }
+    .login-title { text-align:center; margin-bottom:12px }
+    .input-error { color:#d93025; font-size:0.9rem; display:none }
+    .input-error.active { display:block }
+  </style>
+</head>
+<body class="login-bg">
+  <div class="login-container">
+    <h1 class="login-title">Admin Portal Login</h1>
+    <form id="adminLoginForm" class="login-form">
+      <div class="form-group">
+        <label for="adminUsername">Username</label>
+        <input type="text" id="adminUsername" name="username" required>
+      </div>
+      <div class="form-group password-field">
+        <label for="adminPassword">Password</label>
+        <input type="password" id="adminPassword" name="password" required>
+        <button type="button" id="toggleAdminPassword" class="password-toggle" aria-label="Show password">
+          <i class="fa fa-eye"></i>
+          <i class="fa fa-eye-slash"></i>
+        </button>
+      </div>
+      <div id="adminLoginError" class="input-error" aria-live="polite"></div>
+      <button type="submit" class="btn btn-primary">Login as Admin</button>
+      <div class="form-footer">
+        <p><a href="index.html">Back to user login</a></p>
+      </div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { loginUser } from './js/service.js';
+
+    const adminForm = document.getElementById('adminLoginForm');
+    const adminError = document.getElementById('adminLoginError');
+    const toggleAdminPassword = document.getElementById('toggleAdminPassword');
+    const adminPassword = document.getElementById('adminPassword');
+
+    if (toggleAdminPassword && adminPassword) {
+      toggleAdminPassword.addEventListener('click', () => {
+        const isHidden = adminPassword.type === 'password';
+        adminPassword.type = isHidden ? 'text' : 'password';
+        toggleAdminPassword.classList.toggle('showing', isHidden);
+      });
+    }
+
+    adminForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      adminError.textContent = '';
+      adminError.classList.remove('active');
+
+      if (!username || !password) {
+        adminError.textContent = 'Please enter username and password';
+        adminError.classList.add('active');
+        return;
+      }
+
+      try {
+        const response = await loginUser({ username, password });
+        // check role
+     const role = response?.user?.role || null;
+        const roleStr = Array.isArray(role) ? role[0] : role;
+        if (!roleStr || String(roleStr).toLowerCase().indexOf('admin') === -1) {
+          adminError.textContent = 'Access denied: account is not an admin.';
+          adminError.classList.add('active');
+          return;
+        }
+
+        // store token/expiry/role similar to user login
+        const authToken = response.token || response.authToken || 'auth_' + Date.now();
+        localStorage.setItem('authToken', authToken);
+
+        let expiryTimestamp = null;
+        if (response.expiresAt) expiryTimestamp = Date.parse(response.expiresAt);
+        else if (response.expiresIn) expiryTimestamp = Date.now() + (Number(response.expiresIn) * 1000);
+        else expiryTimestamp = Date.now() + (60 * 60 * 1000);
+        localStorage.setItem('authExpiry', String(expiryTimestamp));
+
+        localStorage.setItem('role', Array.isArray(role) ? role[0] : roleStr);
+        // store userId/username for admin session display
+        if (response.id) localStorage.setItem('userId', response.id);
+        else localStorage.setItem('userId', username);
+        localStorage.setItem('username', username);
+
+        // redirect to admin portal
+        window.location.href = 'admin.html';
+      } catch (err) {
+        adminError.textContent = err.message || 'Login failed';
+        adminError.classList.add('active');
+        console.error('Admin login error', err);
+      }
+    });
+  </script>
+</body>
+</html>

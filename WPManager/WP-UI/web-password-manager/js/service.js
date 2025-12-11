@@ -1,5 +1,5 @@
 // js/service.js
-import { GET_ALL, ADD, UPDATE, DELETE, REGISTER, LOGIN, LOGOUT, GET_PROFILE, UPDATE_PROFILE, CHANGE_PASSWORD, DELETE_PROFILE } from './api.js';
+import { GET_ALL, ADD, UPDATE, DELETE, REGISTER, LOGIN, LOGOUT, FORGOT_PASSWORD, GET_PROFILE, UPDATE_PROFILE, CHANGE_PASSWORD, DELETE_PROFILE, SUPPORT_CREATE, SUPPORT_GET_ALL, SUPPORT_UPDATE, SUPPORT_DELETE, ADMIN_GET_USERS, ADMIN_USER_STATS, ADMIN_USER_QUERIES, ADMIN_CREATE_USER, ADMIN_UPDATE_QUERY_STATUS } from './api.js';
 
 // Get all passwords for a user
 export async function getAllPasswords(userId) {
@@ -141,4 +141,93 @@ export async function deleteProfile(userId) {
   } else {
     return true;
   }
+}
+
+// Support query functions
+export async function createSupportQuery(data) {
+  const res = await fetch(SUPPORT_CREATE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Failed to create support query');
+  return await res.json();
+}
+
+export async function getSupportQueries(userId) {
+  if (!userId) throw new Error('Missing userId');
+  const res = await fetch(SUPPORT_GET_ALL(userId));
+  if (!res.ok) throw new Error('Failed to fetch support queries');
+  return await res.json();
+}
+
+export async function updateSupportQuery(queryId, data) {
+  const res = await fetch(SUPPORT_UPDATE(queryId), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Failed to update support query');
+  return await res.json();
+}
+
+export async function deleteSupportQuery(queryId) {
+  const res = await fetch(SUPPORT_DELETE(queryId), {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete support query');
+  return true;
+}
+
+// Admin functions (frontend expects backend admin routes and proper auth)
+export async function adminGetAllUsers() {
+  const res = await fetch(ADMIN_GET_USERS, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) throw new Error('Failed to fetch users (admin)');
+  return await res.json();
+}
+
+export async function adminGetUserStats(userId) {
+  if (!userId) throw new Error('Missing userId');
+  const res = await fetch(ADMIN_USER_STATS(userId));
+  if (!res.ok) throw new Error('Failed to fetch user stats (admin)');
+  return await res.json();
+}
+
+export async function adminGetUserQueries(userId) {
+  if (!userId) throw new Error('Missing userId');
+  // reuse support endpoint for queries
+  const res = await fetch(ADMIN_USER_QUERIES(userId));
+  if (!res.ok) throw new Error('Failed to fetch user queries (admin)');
+  return await res.json();
+}
+
+export async function adminCreateUser(data) {
+  const token = localStorage.getItem('authToken');
+  const res = await fetch(ADMIN_CREATE_USER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Failed to create user (admin)');
+  }
+  return await res.json();
+}
+
+export async function adminUpdateQueryStatus(queryId, status) {
+  if (!queryId) throw new Error('Missing queryId');
+  const token = localStorage.getItem('authToken');
+  const res = await fetch(ADMIN_UPDATE_QUERY_STATUS(queryId), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
+    body: JSON.stringify({ status })
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Failed to update query status (admin)');
+  }
+  return await res.json();
 }

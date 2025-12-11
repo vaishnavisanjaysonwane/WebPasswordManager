@@ -22,6 +22,8 @@ public class User {
     @Column(nullable = false)
     private String fullName;
 
+    private String role;
+
     @Column(nullable = false, unique = true)
     private String username;
 

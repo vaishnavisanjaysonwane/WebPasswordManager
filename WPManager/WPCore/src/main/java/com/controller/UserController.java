@@ -21,12 +21,11 @@ public class UserController {
     private final UserService userService;
 
     // ----------------------- GET USER BY USERNAME -----------------------
-    @GetMapping("/{username}")
-    public ResponseEntity<?> getUser(@PathVariable String username) {
-        log.info("Fetching user with username: {}", username);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUser(@PathVariable Long id) {
+        log.info("Fetching user with userId: {}", id);
 
-        User user = userService.getUserByUsername(username)
-                .orElse(null);
+        User user = userService.getUserByUserId(id);
 
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found");

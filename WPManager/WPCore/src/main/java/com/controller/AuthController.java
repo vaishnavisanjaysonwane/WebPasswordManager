@@ -1,6 +1,7 @@
 package com.controller;
 
 import com.dto.UserLoginRequest;
+import com.dto.UserLoginResponse;
 import com.dto.UserRegisterRequest;
 import com.entity.User;
 import com.service.UserAuthService;
@@ -35,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest request, HttpSession session) {
+    public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest request, HttpSession session) {
         log.info("API: Login attempt for {}", request.getUsername());
 
         try {
@@ -46,11 +47,14 @@ public class AuthController {
             session.setMaxInactiveInterval(60); // 60 seconds
 
             log.info("User {} logged in successfully. Session active for 1 minute.", request.getUsername());
+            UserLoginResponse userLoginResponse = new UserLoginResponse();
+            userLoginResponse.setStatus("Login Successfully");
+            userLoginResponse.setUser(user);
 
-            return ResponseEntity.ok("Login successful");
+            return ResponseEntity.ok(userLoginResponse);
         } catch (Exception e) {
             log.error("Login failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(null);
         }
     }
 

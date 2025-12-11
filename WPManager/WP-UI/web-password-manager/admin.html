@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - Web Password Manager</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    .admin-container { max-width: 1100px; margin: 32px auto; padding: 20px; }
+    .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .users-table { width:100%; border-collapse: collapse; }
+    .users-table th, .users-table td { padding:10px 12px; border-bottom:1px solid #e6e6e6; text-align:left; }
+    .users-table th { background:#f7f7f7; }
+    .action-btn { cursor:pointer; border:none; padding:6px 10px; border-radius:4px; }
+    .btn-view { background:#0d6efd; color:#fff }
+    .btn-refresh { background:#28a745; color:#fff }
+    .small-muted { color:#666; font-size:0.9rem }
+    .modal { position:fixed; inset:0; display:none; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; }
+    .modal.show { display:flex; }
+    .modal-content { background:#fff; border-radius:8px; width:90%; max-width:720px; padding:20px; }
+    .modal-close { float:right; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>Admin Dashboard</h1>
+      <div>
+        <button id="refreshBtn" class="action-btn btn-refresh">Refresh</button>
+        <button id="createUserBtn" class="action-btn" style="margin-left:8px; background:#0069d9; color:#fff">Create User</button>
+      </div>
+    </div>
+
+    <section>
+      <table class="users-table" id="usersTable">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Passwords</th>
+            <th>Support Queries</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTbody">
+          <tr><td colspan="5" class="small-muted">Loading users...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- Queries modal -->
+  <div id="queriesModal" class="modal">
+    <div class="modal-content">
+      <span id="closeQueriesModal" class="modal-close">&times;</span>
+      <h2>User Support Queries</h2>
+      <div id="queriesContainer">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Create User Modal -->
+  <div id="createUserModal" class="modal">
+    <div class="modal-content">
+      <span id="closeCreateUserModal" class="modal-close">&times;</span>
+      <h2>Create User</h2>
+      <form id="createUserForm">
+        <div class="form-group">
+          <label for="newFullName">Full Name</label>
+          <input id="newFullName" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="newUsername">Username</label>
+          <input id="newUsername" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="newEmail">Email</label>
+          <input id="newEmail" type="email" required />
+        </div>
+        <div class="form-group">
+          <label for="newPassword">Password</label>
+          <input id="newPassword" type="password" required />
+        </div>
+        <div class="form-group">
+          <label for="newRole">Role</label>
+          <select id="newRole">
+            <option value="ROLE_USER">User</option>
+            <option value="ROLE_ADMIN">Admin</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { adminGetAllUsers, adminGetUserQueries, adminGetUserStats } from './js/service.js';
+
+    const usersTbody = document.getElementById('usersTbody');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const queriesModal = document.getElementById('queriesModal');
+    const closeQueriesModal = document.getElementById('closeQueriesModal');
+    const queriesContainer = document.getElementById('queriesContainer');
+
+    // --- Authentication / session checks (same pattern as user pages) ---
+    function clearAndRedirectToLogin() {
+      localStorage.clear();
+      // Attempt to prevent back navigation caching
+      try { window.history.forward(); } catch (e) {}
+      window.location.href = 'index.html';
+    }
+
+    function isSessionExpired() {
+      const expiry = Number(localStorage.getItem('authExpiry')) || 0;
+      return expiry && Date.now() > expiry;
+    }
+
+    function getRole() {
+      return localStorage.getItem('role') || localStorage.getItem('userRole') || null;
+    }
+
+    // Run checks on page load
+    if (!localStorage.getItem('authToken') || !localStorage.getItem('userId') || isSessionExpired()) {
+      clearAndRedirectToLogin();
+      // stop further execution
+      throw new Error('Not authenticated or session expired');
+    }
+
+    // Require admin role
+    const role = getRole();
+    if (!role || !String(role).toLowerCase().includes('admin')) {
+      // Not an admin -> redirect to dashboard
+      clearAndRedirectToLogin();
+      throw new Error('Admin access required');
+    }
+
+    // Auto-logout when session expires (check every 15s)
+    setInterval(() => {
+      if (isSessionExpired()) {
+        alert('Session expired — please log in again.');
+        clearAndRedirectToLogin();
+      }
+    }, 15000);
+
+    // Protect against cached back navigation showing the page after logout
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) {
+        if (!localStorage.getItem('authToken') || isSessionExpired()) {
+          clearAndRedirectToLogin();
+        }
+      }
+    });
+
+    async function loadUsers() {
+      usersTbody.innerHTML = '<tr><td colspan="5" class="small-muted">Loading users...</td></tr>';
+      try {
+        const users = await adminGetAllUsers();
+        if (!Array.isArray(users) || users.length === 0) {
+          usersTbody.innerHTML = '<tr><td colspan="5" class="small-muted">No users found</td></tr>';
+          return;
+        }
+
+        usersTbody.innerHTML = '';
+        for (const u of users) {
+          // Expecting backend to include id, username, email, passwordCount, queryCount (if not available, we fetch stats)
+          const id = u.id || u.userId || u.user_id || u.username;
+          const username = u.username || u.userName || u.user || u.id || '';
+          const email = u.email || u.userEmail || '';
+          let pwdCount = (u.passwordCount !== undefined) ? u.passwordCount : '-';
+          let queryCount = (u.queryCount !== undefined) ? u.queryCount : '-';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${username}</td>
+            <td>${email}</td>
+            <td>${pwdCount}</td>
+            <td>${queryCount}</td>
+            <td>
+              <button class="action-btn btn-view" data-user-id="${id}">View Queries</button>
+            </td>
+          `;
+          usersTbody.appendChild(tr);
+        }
+
+        // Attach handlers for view buttons
+        document.querySelectorAll('.btn-view').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const uid = btn.getAttribute('data-user-id');
+            openQueriesModal(uid);
+          });
+        });
+
+      } catch (err) {
+        usersTbody.innerHTML = `<tr><td colspan="5" class="small-muted">Error loading users: ${err.message}</td></tr>`;
+        console.error('admin loadUsers error', err);
+      }
+    }
+
+    async function openQueriesModal(userId) {
+      queriesContainer.innerHTML = 'Loading queries...';
+      queriesModal.classList.add('show');
+      try {
+        const queries = await adminGetUserQueries(userId);
+        if (!Array.isArray(queries) || queries.length === 0) {
+          queriesContainer.innerHTML = '<p class="small-muted">No queries found for this user.</p>';
+          return;
+        }
+        const list = document.createElement('div');
+        list.innerHTML = queries.map(q => `
+          <div style="border-bottom:1px solid #eee; padding:8px 0;">
+            <strong>${q.subject}</strong>
+            <div class="small-muted">Status: ${q.status} — ${new Date(q.createdAt || q.created || '').toLocaleString()}</div>
+            <div style="margin-top:6px">${q.message}</div>
+            <div style="margin-top:8px">
+              <label style="margin-right:6px">Change status:</label>
+              <select data-query-id="${q.id}" class="admin-status-select">
+                <option value="PENDING" ${q.status && q.status.toUpperCase()==='PENDING' ? 'selected' : ''}>Pending</option>
+                <option value="IN_PROGRESS" ${q.status && q.status.toUpperCase()==='IN_PROGRESS' ? 'selected' : ''}>In Progress</option>
+                <option value="RESOLVED" ${q.status && q.status.toUpperCase()==='RESOLVED' ? 'selected' : ''}>Resolved</option>
+              </select>
+              <button class="action-btn" data-query-id="${q.id}" style="margin-left:8px; background:#17a2b8; color:#fff" data-action="update-status">Update Status</button>
+            </div>
+          </div>
+        `).join('');
+        queriesContainer.innerHTML = '';
+        queriesContainer.appendChild(list);
+
+        // Attach admin status update handlers
+        queriesContainer.querySelectorAll('[data-action="update-status"]').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const qid = btn.getAttribute('data-query-id');
+            const sel = queriesContainer.querySelector(`select[data-query-id="${qid}"]`);
+            if (!sel) return;
+            const newStatus = sel.value;
+            try {
+              await adminUpdateQueryStatus(qid, newStatus, userId);
+              alert('Status updated');
+              // refresh user list and queries
+              loadUsers();
+              openQueriesModal(userId);
+            } catch (err) {
+              alert('Failed to update status: ' + err.message);
+            }
+          });
+        });
+      } catch (err) {
+        queriesContainer.innerHTML = `<p class="small-muted">Error: ${err.message}</p>`;
+        console.error('openQueriesModal error', err);
+      }
+    }
+
+    export async function adminUpdateQueryStatus(queryId, newStatus, userId) {
+    const token = localStorage.getItem('authToken');
+
+    const response = await fetch(`http://localhost:8080/api/support/${queryId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            id: queryId,
+            status: newStatus,
+            userId: String(userId)
+        })
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(err.error || "Failed to update");
+    }
+
+    return response.json();
+}
+
+
+    closeQueriesModal.addEventListener('click', () => queriesModal.classList.remove('show'));
+    queriesModal.addEventListener('click', (e) => { if (e.target === queriesModal) queriesModal.classList.remove('show'); });
+    refreshBtn.addEventListener('click', loadUsers);
+
+    // Create user modal handlers
+    const createUserBtn = document.getElementById('createUserBtn');
+    const createUserModal = document.getElementById('createUserModal');
+    const closeCreateUserModal = document.getElementById('closeCreateUserModal');
+    const createUserForm = document.getElementById('createUserForm');
+
+    function showCreateUser() { createUserModal.classList.add('show'); }
+    function hideCreateUser() { createUserModal.classList.remove('show'); }
+
+    if (createUserBtn) createUserBtn.addEventListener('click', showCreateUser);
+    if (closeCreateUserModal) closeCreateUserModal.addEventListener('click', hideCreateUser);
+    createUserModal.addEventListener('click', (e) => { if (e.target === createUserModal) hideCreateUser(); });
+
+    createUserForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById('newFullName').value.trim();
+      const username = document.getElementById('newUsername').value.trim();
+      const email = document.getElementById('newEmail').value.trim();
+      const password = document.getElementById('newPassword').value;
+      const role = document.getElementById('newRole').value;
+      if (!fullName || !username || !email || !password) {
+        alert('Please fill all fields');
+        return;
+      }
+      try {
+        await adminCreateUser({ fullName, username, email, password, role });
+        alert('User created');
+        hideCreateUser();
+        loadUsers();
+      } catch (err) {
+        alert('Failed to create user: ' + err.message);
+      }
+    });
+
+    
+
+    // Initial load
+    loadUsers();
+  </script>
+</body>
+</html>

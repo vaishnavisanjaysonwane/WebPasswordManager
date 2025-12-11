@@ -72,4 +72,13 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(userOpt.get());
         return true;
     }
+
+    @Override
+    public User getUserByUserId(Long id) {
+        log.info("Updating user with userId: {}", id);
+
+        Optional<User> user = userRepository.findById(id);
+
+        return user.get();
+    }
 }

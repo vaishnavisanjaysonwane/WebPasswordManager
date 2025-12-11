@@ -34,7 +34,7 @@ public class PasswordController {
     }
 
     // UPDATE
-    @PutMapping("/{id}")
+    @PutMapping("/id/{id}")
     public ResponseEntity<PasswordEntry> updatePassword(
             @PathVariable Long id,
             @RequestBody PasswordEntry entry
@@ -45,7 +45,7 @@ public class PasswordController {
     }
 
     // DELETE
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id/{id}")
     public ResponseEntity<String> deletePassword(@PathVariable Long id) {
         log.warn("API Request → Delete password with ID: {}", id);
         passwordService.deletePassword(id);

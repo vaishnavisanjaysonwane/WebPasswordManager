@@ -12,4 +12,5 @@ public interface UserService {
     boolean changePasswordByUsername(String username, String oldPassword, String newPassword);
     boolean deleteUserByUsername(String username);
 
+    User getUserByUserId(Long id);
 }
