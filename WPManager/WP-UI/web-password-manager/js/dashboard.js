@@ -80,13 +80,12 @@ function renderPasswords() {
     passwordList.innerHTML = '<div class="empty">No passwords found.</div>';
     return;
   }
-  let html = `<table class="password-table"><thead><tr><th>Website</th><th>Username/Email</th><th>Password</th><th>Category</th><th>Actions</th></tr></thead><tbody>`;
+  let html = `<table class="password-table"><thead><tr><th>Website</th><th>Username/Email</th><th>Password</th><th>Actions</th></tr></thead><tbody>`;
   for (const p of filtered) {
     html += `<tr>
       <td>${p.website}</td>
       <td>${p.username}</td>
       <td><span class="password-dot" data-id="${p.id}">••••••••</span> <button class="show-hide" data-id="${p.id}"><i class="fa-solid fa-eye"></i></button></td>
-      <td>${p.category || ''}</td>
       <td>
         <button class="action-btn edit" data-id="${p.id}"><i class="fa-solid fa-pen"></i></button>
         <button class="action-btn delete" data-id="${p.id}"><i class="fa-solid fa-trash"></i></button>

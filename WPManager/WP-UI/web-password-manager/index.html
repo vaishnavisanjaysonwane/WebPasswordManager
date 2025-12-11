@@ -87,6 +87,15 @@
         </button>
         <div id="signinPasswordError" class="input-error" aria-live="polite"></div>
       </div>
+      <div class="form-group">
+  <label for="signinRole">Role</label>
+  <select id="signinRole" name="role" required>
+    <option value="">Select Role</option>
+    <option value="USER">User</option>
+    <option value="ADMIN">Admin</option>
+  </select>
+  <div id="signinRoleError" class="input-error" aria-live="polite"></div>
+</div>
       <button type="submit" class="btn btn-primary">Sign Up</button>
       <div class="form-footer">
         <p>Already have an account? <a href="#" id="toggleLogin">Login here</a></p>
@@ -94,8 +103,8 @@
     </form>
 
     <div class="login-footer">
-      <a href="#">Forgot password?</a>
-      &nbsp;|&nbsp;
+      <!-- <a href="#">Forgot password?</a>
+      &nbsp;|&nbsp; -->
       <a href="admin_login.html">Admin Portal</a>
     </div>
   </div>
@@ -330,6 +339,8 @@
       const username = document.getElementById('signinUsername').value.trim();
       const email = document.getElementById('signinEmail').value.trim();
       const password = document.getElementById('signinPassword').value;
+      const role = document.getElementById('signinRole').value;
+
       
       if (!fullName || !username || !email || !password) {
         alert('Please fill in all fields');
@@ -380,7 +391,7 @@
       }
 
       try {
-        const response = await registerUser({ fullName, username, email, password });
+        const response = await registerUser({ fullName, username, email, password, role });
         console.log('Registration response:', response);
         // If backend returned a role (e.g. admin) and optionally token, redirect accordingly.
         const regRole = response.role || response.roles || (response.user && response.user.role) || null;
