@@ -28,6 +28,7 @@
       <h1>Admin Dashboard</h1>
       <div>
         <button id="refreshBtn" class="action-btn btn-refresh">Refresh</button>
+         <button id="logoutBtn" class="action-btn logout-btn" style="margin-left:8px; background:#dc3545; color:#fff">Logout</button>
         <!-- <button id="createUserBtn" class="action-btn" style="margin-left:8px; background:#0069d9; color:#fff">Create User</button> -->
       </div>
     </div>
@@ -311,6 +312,20 @@
         alert('Failed to create user: ' + err.message);
       }
     });
+
+    // Logout functionality
+const logoutBtn = document.getElementById('logoutBtn');
+
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    // Clear session data
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Redirect to login page
+    window.location.href = 'index.html';
+  });
+}
 
     
 

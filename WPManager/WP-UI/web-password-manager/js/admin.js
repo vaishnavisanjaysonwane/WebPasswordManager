@@ -1,4 +1,4 @@
-import { adminGetAllUsers, adminGetUserQueries } from './service.js';
+import { adminGetAllUsers, adminGetUserQueries, logout } from './service.js';
 
 // This file is optional - admin.html currently inlines logic.
 // Keeping a small module in case you want to expand admin features later.
@@ -34,3 +34,16 @@ export async function renderUsers(container) {
     tbody.innerHTML = `<tr><td colspan="5" class="small-muted">Error loading users: ${err.message}</td></tr>`;
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to logout?')) {
+        logout();
+      }
+    });
+  }
+});
+

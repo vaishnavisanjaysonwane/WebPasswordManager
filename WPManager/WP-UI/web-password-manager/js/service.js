@@ -9,6 +9,20 @@ export async function getAllPasswords(userId) {
   return await res.json();
 }
 
+export function logout() {
+  // Remove auth data
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  sessionStorage.clear();
+
+  // Optional: call backend logout API
+  // return fetch('/api/logout', { method: 'POST' });
+
+  // Redirect to login page
+  window.location.href = 'login.html';
+}
+
+
 // Add password for a user
 export async function addPassword(userId, data) {
   if (!userId) throw new Error('Missing userId');
